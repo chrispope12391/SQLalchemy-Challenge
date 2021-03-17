@@ -25,6 +25,10 @@ Station = Base.classes.station
 ######################################
 app = Flask(__name__)
 
+
+######################################
+#Flask Routes
+######################################
 @app.route("/")
 def welcome():
     """List all available api routes."""
@@ -43,13 +47,13 @@ def precipitation():
     # Create our session (link) from Python to the DB
     session = Session(engine)
 
-    """Return a list of precipitation data"""
-    # Query all passengers
+    """Return a dictionary of Dates and Precipitation amount data"""
+    # Query all measurement data
     results = session.query(Measurement.date, Measurement.prcp).all()
 
     session.close()
 
-    # Convert list of tuples into normal list
+    # Create a dictionary from the row data and append it to a list all_precip
     all_precip = []
     for date, prcp in results:
         measurement_dict={}
@@ -65,8 +69,8 @@ def stations():
     # Create our session (link) from Python to the DB
     session = Session(engine)
 
-    """Return a list of precipitation data"""
-    # Query all passengers
+    """Return a list of station data"""
+    # Query all stations
     results = session.query(Station.station).all()
 
     session.close()
@@ -80,8 +84,8 @@ def tobs():
     # Create our session (link) from Python to the DB
     session = Session(engine)
 
-    """Return a list of precipitation data"""
-    # Query all passengers
+    """Return a list of Dates and Temperatures data that are after 08/22/2016"""
+    # Query measurement dates and temperatures
     results = session.query(Measurement.date, Measurement.tobs).filter(Measurement.date > '2016-08-22').all()
 
     session.close()
@@ -101,8 +105,8 @@ def start(start):
         func.max(Measurement.tobs),
         func.avg(Measurement.tobs)]
 
-    """Return a list of precipitation data"""
-    # Query all passengers
+    """Return a list that includes the Date, Minimum tempearture, Maximum temperature and average temperature that is on or after a provided date"""
+    # Query measurement dates and temperature calculations
     results = session.query(*sel).\
         filter(Measurement.date >= start).\
         group_by(Measurement.date).\
@@ -125,8 +129,8 @@ def start_end(start, end):
     func.max(Measurement.tobs),
     func.avg(Measurement.tobs)]
 
-    """Return a list of precipitation data"""
-    # Query all passengers
+    """Return a list that includes the Date, Minimum tempearture, Maximum temperature and average temperature that is after one provided date and before a second provided date"""
+    # Query measurement dates and temperature calculations
     results = session.query(*sel).\
     filter(Measurement.date > start).\
     filter(Measurement.date < end).\
